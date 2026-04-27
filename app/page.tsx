@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, Send, CheckCircle, XCircle, LayoutDashboard, ClipboardList, Home, AlertCircle, MessageSquare, BarChart3, ArrowLeft, UploadCloud } from 'lucide-react';
 
 export default function RingiApp() {
@@ -16,10 +16,14 @@ export default function RingiApp() {
   const [showDemoAlert, setShowDemoAlert] = useState(false);
   const [rejectModal, setRejectModal] = useState<{isOpen: boolean, itemId: number | null}>({isOpen: false, itemId: null});
   const [rejectComment, setRejectComment] = useState("");
+  const [demoId, setDemoId] = useState("");
 
-  // 承認ルートの自動判定ロジック (エラー箇所を修正)
+  // IDを初回のみランダム生成
+  useEffect(() => {
+    setDemoId(`REQ-${Math.floor(1000 + Math.random() * 9000)}`);
+  }, []);
+
   const getApprovalRoute = () => {
-    // !amount だけにすることで、0 や "" を一括でチェックし、TypeScriptのエラーを回避します
     if (!category || !amount) return "内容を入力してください";
     const num = Number(amount);
 
@@ -57,12 +61,12 @@ export default function RingiApp() {
             <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
               <button onClick={() => setView('applicant')} className="w-full bg-blue-600 hover:bg-blue-700 text-white p-5 rounded-2xl shadow-md font-bold transition flex flex-col items-center justify-center space-y-2">
                 <Camera className="w-8 h-8" />
-                <span className="text-lg">申請者メニュー</span>
+                <span className="text-lg font-bold">申請者メニュー</span>
                 <span className="text-xs text-blue-200 font-normal">保育士・職員向け</span>
               </button>
               <button onClick={() => setView('approver')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-2xl shadow-md font-bold transition flex flex-col items-center justify-center space-y-2">
                 <LayoutDashboard className="w-8 h-8" />
-                <span className="text-lg">管理者メニュー</span>
+                <span className="text-lg font-bold">管理者メニュー</span>
                 <span className="text-xs text-indigo-200 font-normal">園長・社長向け</span>
               </button>
             </div>
@@ -73,15 +77,15 @@ export default function RingiApp() {
       {/* 2. 申請画面 */}
       {view === 'applicant' && (
         <div className="w-full max-w-md md:max-w-3xl mx-auto bg-gray-50 min-h-screen pb-24 relative shadow-2xl transition-all duration-300">
-          <header className="bg-blue-600 text-white p-6 md:p-8 shadow-md rounded-b-3xl">
-            <div className="flex items-center justify-between">
-              <div>
+          <header className="bg-blue-600 text-white p-6 md:p-8 shadow-md rounded-b-3xl text-center">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-left">
                 <h1 className="text-xl md:text-2xl font-bold">経費申請フォーム</h1>
-                <p className="text-xs md:text-sm text-blue-100 mt-1">ID: REQ-DEMO-001</p>
+                <p className="text-xs md:text-sm text-blue-100 mt-1 font-mono">{demoId}</p>
               </div>
               <button onClick={() => setView('portal')} className="p-3 bg-blue-700 rounded-full hover:bg-blue-800 transition"><Home className="w-5 h-5 md:w-6 md:h-6" /></button>
             </div>
-            <div className="flex mt-6 md:mt-8 bg-blue-700 rounded-xl p-1 max-w-sm mx-auto">
+            <div className="flex bg-blue-700 rounded-xl p-1 max-w-sm mx-auto">
               <button onClick={() => setApplicantTab('new')} className={`flex-1 py-2 md:py-3 text-sm md:text-base font-bold rounded-lg transition ${applicantTab === 'new' ? 'bg-white text-blue-600 shadow' : 'text-blue-100'}`}>新規申請</button>
               <button onClick={() => setApplicantTab('status')} className={`flex-1 py-2 md:py-3 text-sm md:text-base font-bold rounded-lg transition ${applicantTab === 'status' ? 'bg-white text-blue-600 shadow' : 'text-blue-100'}`}>履歴・状況</button>
             </div>
@@ -92,20 +96,20 @@ export default function RingiApp() {
                 <div className="space-y-5 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">申請者名</label>
-                    <input type="text" placeholder="お名前" className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none" value={applicantName} onChange={(e) => setApplicantName(e.target.value)} />
+                    <input type="text" placeholder="お名前を入力" className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" value={applicantName} onChange={(e) => setApplicantName(e.target.value)} />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">所属園</label>
-                    <select defaultValue="" className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
-                      <option value="" disabled>園を選択</option>
+                    <select defaultValue="" className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
+                      <option value="" disabled>園を選択してください</option>
                       <option value="A">A保育園</option>
                       <option value="B">Bこども園</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">費目</label>
-                    <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none">
-                      <option value="" disabled>費目を選択</option>
+                    <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
+                      <option value="" disabled>費目を選択してください</option>
                       <option value="研修費">研修費</option>
                       <option value="教材費">教材費</option>
                       <option value="備品">備品</option>
@@ -114,7 +118,7 @@ export default function RingiApp() {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">用途</label>
-                    <input type="text" placeholder="例：粘土の補充" className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
+                    <input type="text" placeholder="例：粘土の補充" className="w-full border-gray-300 border p-3 rounded-xl bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
                   </div>
                 </div>
                 <div className="space-y-5 md:space-y-0 md:grid md:grid-cols-2 md:gap-6 items-end">
@@ -122,10 +126,10 @@ export default function RingiApp() {
                     <label className="block text-sm font-bold text-gray-700 mb-1">金額</label>
                     <div className="relative">
                       <span className="absolute left-4 top-3.5 text-gray-500 font-bold">¥</span>
-                      <input type="number" placeholder="0" className="w-full border-gray-300 border p-3 pl-10 rounded-xl bg-white text-gray-900 text-lg font-bold" value={amount} onChange={(e) => setAmount(e.target.value === "" ? "" : Number(e.target.value))} />
+                      <input type="number" placeholder="0" className="w-full border-gray-300 border p-3 pl-10 rounded-xl bg-white text-gray-900 text-lg font-bold focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" value={amount} onChange={(e) => setAmount(e.target.value === "" ? "" : Number(e.target.value))} />
                     </div>
                   </div>
-                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl flex flex-col justify-center">
+                  <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl flex flex-col justify-center shadow-inner">
                     <p className="text-[10px] text-blue-600 font-bold uppercase mb-1">予定承認ルート</p>
                     <div className="flex items-center space-x-2 text-blue-800 font-bold text-sm">
                       <CheckCircle className="w-4 h-4 shrink-0" />
@@ -151,11 +155,11 @@ export default function RingiApp() {
             {applicantTab === 'status' && (
               <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-4">
                 <div className="bg-white p-5 rounded-2xl shadow-sm border border-orange-100">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="font-bold text-gray-800">備品（空気清浄機）</span>
+                  <div className="flex justify-between items-start mb-2 text-gray-800 font-bold">
+                    <span>備品（空気清浄機）</span>
                     <span className="text-xs text-gray-400 font-mono">REQ-8821</span>
                   </div>
-                  <div className="text-xl font-bold text-gray-900 mb-3">¥45,000</div>
+                  <div className="text-2xl font-bold text-gray-900 mb-3">¥45,000</div>
                   <div className="bg-orange-50 text-orange-700 p-3 rounded-xl text-sm font-bold flex items-center space-x-2">
                     <div className="w-4 h-4 rounded-full border-2 border-orange-500 border-t-transparent animate-spin shrink-0"></div>
                     <span>園長承認済、現在社長の決裁待ち</span>
@@ -167,8 +171,8 @@ export default function RingiApp() {
           {showDemoAlert && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
               <div className="bg-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">送信完了（デモ）</h3>
-                <p className="text-gray-600 mb-6 text-sm">Googleスプレッドシートへの記帳をシミュレートしました。</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-bold">送信完了（デモ）</h3>
+                <p className="text-gray-600 mb-6 text-sm">Googleスプレッドシートへの記帳をシミュレートしました。実際の運用では管理者に自動通知が届きます。</p>
                 <button onClick={() => { setShowDemoAlert(false); setApplicantTab('status'); }} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">閉じる</button>
               </div>
             </div>
@@ -176,7 +180,7 @@ export default function RingiApp() {
         </div>
       )}
 
-      {/* 3. 管理画面 (簡略化) */}
+      {/* 3. 管理画面 */}
       {view === 'approver' && (
         <div className="w-full max-w-md md:max-w-4xl mx-auto bg-gray-50 min-h-screen pb-24 relative shadow-2xl">
           <header className="bg-indigo-700 text-white p-6 md:p-8 shadow-md rounded-b-3xl">
@@ -185,8 +189,8 @@ export default function RingiApp() {
               <button onClick={() => setView('portal')} className="p-3 bg-indigo-800 hover:bg-indigo-900 rounded-full text-white"><Home className="w-5 h-5 md:w-6 md:h-6" /></button>
             </div>
             <div className="flex bg-indigo-800 rounded-xl p-1 max-w-md mx-auto">
-              <button onClick={() => setApproverTab('list')} className={`flex-1 py-2 md:py-3 text-sm md:text-base font-bold rounded-lg transition ${approverTab === 'list' ? 'bg-white text-indigo-700 shadow' : 'text-indigo-100'}`}>承認待ち</button>
-              <button onClick={() => setApproverTab('report')} className={`flex-1 py-2 md:py-3 text-sm md:text-base font-bold rounded-lg transition ${approverTab === 'report' ? 'bg-white text-indigo-700 shadow' : 'text-indigo-100'}`}>レポート</button>
+              <button onClick={() => setApproverTab('list')} className={`flex-1 py-2 md:py-3 text-sm md:text-base font-bold rounded-lg transition ${approverTab === 'list' ? 'bg-white text-indigo-700 shadow' : 'text-indigo-100'}`}>承認待ちリスト</button>
+              <button onClick={() => setApproverTab('report')} className={`flex-1 py-2 md:py-3 text-sm md:text-base font-bold rounded-lg transition ${approverTab === 'report' ? 'bg-white text-indigo-700 shadow' : 'text-indigo-100'}`}>月次レポート</button>
             </div>
           </header>
           <main className="p-6 md:p-8">
@@ -203,18 +207,19 @@ export default function RingiApp() {
             )}
             {approverTab === 'report' && (
               <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-100 text-gray-800">
-                <h3 className="text-lg font-bold mb-6 flex items-center space-x-2"><BarChart3 className="w-5 h-5 text-indigo-500" /><span>4月 費目別集計</span></h3>
+                <h3 className="text-lg font-bold mb-6 flex items-center space-x-2"><BarChart3 className="w-5 h-5 text-indigo-500" /><span>4月 費目別予算集計</span></h3>
                 <div className="space-y-6">
                   <div>
-                    <div className="flex justify-between text-sm font-bold mb-2"><span>教材費</span><span>¥45,000 / ¥50,000</span></div>
+                    <div className="flex justify-between text-sm font-bold mb-2 text-gray-800"><span>教材費</span><span>¥45,000 / ¥50,000</span></div>
                     <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden"><div className="bg-blue-500 h-full w-[90%]"></div></div>
+                    <p className="text-[10px] text-red-500 mt-1 font-bold">! 予算の90%を超過</p>
                   </div>
                   <div>
-                    <div className="flex justify-between text-sm font-bold mb-2"><span>備品</span><span>¥128,000 / ¥150,000</span></div>
+                    <div className="flex justify-between text-sm font-bold mb-2 text-gray-800"><span>備品</span><span>¥128,000 / ¥150,000</span></div>
                     <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden"><div className="bg-orange-500 h-full w-[85%]"></div></div>
                   </div>
                 </div>
-                <button className="w-full py-5 bg-white border-2 border-indigo-100 text-indigo-600 font-bold rounded-2xl mt-8 flex items-center justify-center space-x-2 shadow-sm">
+                <button className="w-full py-5 bg-white border-2 border-indigo-100 text-indigo-600 font-bold rounded-2xl mt-10 flex items-center justify-center space-x-2 shadow-sm">
                   <ArrowLeft className="w-5 h-5 rotate-90" /><span>スプレッドシートで詳細を見る</span>
                 </button>
               </div>
@@ -223,11 +228,11 @@ export default function RingiApp() {
           {rejectModal.isOpen && (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-6 backdrop-blur-sm">
               <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2"><MessageSquare className="w-6 h-6 text-red-500" /><span>差し戻し理由（必須）</span></h3>
-                <textarea className="w-full border border-gray-300 rounded-xl p-4 text-gray-900 h-32 mb-6 bg-gray-50 outline-none" value={rejectComment} onChange={(e) => setRejectComment(e.target.value)}></textarea>
+                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2 font-bold"><MessageSquare className="w-6 h-6 text-red-500" /><span>差し戻し理由（必須）</span></h3>
+                <textarea className="w-full border border-gray-300 rounded-xl p-4 text-gray-900 h-32 mb-6 bg-gray-50 outline-none focus:ring-2 focus:ring-red-500" placeholder="例：レシートの金額が見にくいです" value={rejectComment} onChange={(e) => setRejectComment(e.target.value)}></textarea>
                 <div className="flex space-x-4">
                   <button onClick={() => { setRejectModal({isOpen: false, itemId: null}); setRejectComment(""); }} className="flex-1 py-4 font-bold text-gray-500 bg-gray-100 rounded-xl">キャンセル</button>
-                  <button onClick={() => { if(!rejectComment.trim()) return alert('コメントを入力してください'); alert(`差し戻しました`); setRejectModal({isOpen: false, itemId: null}); setRejectComment(""); }} className={`flex-1 py-4 font-bold rounded-xl text-white ${rejectComment.trim() ? 'bg-red-500' : 'bg-red-200'}`}>差し戻す</button>
+                  <button onClick={() => { if(!rejectComment.trim()) return alert('コメントを入力してください'); alert(`差し戻しました`); setRejectModal({isOpen: false, itemId: null}); setRejectComment(""); }} className={`flex-1 py-4 font-bold rounded-xl text-white ${rejectComment.trim() ? 'bg-red-500 shadow-md' : 'bg-red-200 cursor-not-allowed'}`}>差し戻す</button>
                 </div>
               </div>
             </div>
